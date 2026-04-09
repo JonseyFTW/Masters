@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import Header from "@/components/Header";
+import InstallBanner from "@/components/InstallBanner";
 import Navigation from "@/components/Navigation";
 
 export const metadata: Metadata = {
@@ -30,6 +31,7 @@ export default function RootLayout({
     <html lang="en" className="h-full antialiased">
       <body className="min-h-full flex flex-col bg-masters-dark text-white font-sans">
         <Header />
+        <InstallBanner />
         <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-6 pb-24 md:pb-6">
           {children}
         </main>
