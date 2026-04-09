@@ -12,7 +12,7 @@ interface TopEntriesProps {
 }
 
 export default function TopEntries({ leaderboard, totalEntries }: TopEntriesProps) {
-  const top5 = leaderboard.slice(0, 5);
+  const top7 = leaderboard.slice(0, 7);
   const payouts = getPayoutStructure(totalEntries);
   const prizePool = getPrizePool(totalEntries);
 
@@ -38,12 +38,12 @@ export default function TopEntries({ leaderboard, totalEntries }: TopEntriesProp
       </div>
 
       <div className="divide-y divide-masters-border">
-        {top5.length === 0 ? (
+        {top7.length === 0 ? (
           <div className="p-6 text-center text-masters-text text-sm">
             No entries yet
           </div>
         ) : (
-          top5.map(item => {
+          top7.map(item => {
             const payout = payouts.find(p => p.place === item.rank);
             const payoutAmount = payout
               ? Math.round(prizePool * (payout.pct / 100))
