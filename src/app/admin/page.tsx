@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Lock, Upload, Plus, Trash2, Edit3, Save, X, Users, RefreshCw, Check } from 'lucide-react';
 import { Entry, Golfer } from '@/lib/types';
 import TierBadge from '@/components/TierBadge';
+import AutocompleteInput from '@/components/AutocompleteInput';
 
 export default function AdminPage() {
   const [password, setPassword] = useState('');
@@ -133,19 +134,23 @@ export default function AdminPage() {
         ))}
       </div>
 
-      {tab === 'entries' && <EntriesTab entries={entries} authHeader={authHeader} onRefresh={loadData} onMessage={showMessage} />}
+      {tab === 'entries' && <EntriesTab entries={entries} golfers={golfers} authHeader={authHeader} onRefresh={loadData} onMessage={showMessage} />}
       {tab === 'golfers' && <GolfersTab golfers={golfers} authHeader={authHeader} onRefresh={loadData} onMessage={showMessage} />}
       {tab === 'import' && <ImportTab authHeader={authHeader} onRefresh={loadData} onMessage={showMessage} loading={loading} setLoading={setLoading} />}
     </div>
   );
 }
 
-function EntriesTab({ entries, authHeader, onRefresh, onMessage }: {
+function EntriesTab({ entries, golfers, authHeader, onRefresh, onMessage }: {
   entries: Entry[];
+  golfers: Golfer[];
   authHeader: Record<string, string>;
   onRefresh: () => void;
   onMessage: (msg: string) => void;
 }) {
+  const tier1Names = golfers.filter(g => g.tier === 1).map(g => g.name).sort();
+  const tier2Names = golfers.filter(g => g.tier === 2).map(g => g.name).sort();
+  const tier3Names = golfers.filter(g => g.tier === 3).map(g => g.name).sort();
   const [showAdd, setShowAdd] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState({
@@ -239,27 +244,27 @@ function EntriesTab({ entries, authHeader, onRefresh, onMessage }: {
           </div>
           <div className="text-xs text-masters-text font-semibold mt-2">Tier 1 Picks (2)</div>
           <div className="grid grid-cols-2 gap-3">
-            <input placeholder="Tier 1 Pick 1" value={form.t1p1} onChange={e => setForm({ ...form, t1p1: e.target.value })} className={fieldClass} />
-            <input placeholder="Tier 1 Pick 2" value={form.t1p2} onChange={e => setForm({ ...form, t1p2: e.target.value })} className={fieldClass} />
+            <AutocompleteInput placeholder="Tier 1 Pick 1" value={form.t1p1} onChange={v => setForm({ ...form, t1p1: v })} suggestions={tier1Names} className={fieldClass} />
+            <AutocompleteInput placeholder="Tier 1 Pick 2" value={form.t1p2} onChange={v => setForm({ ...form, t1p2: v })} suggestions={tier1Names} className={fieldClass} />
           </div>
           <div className="text-xs text-masters-text font-semibold">Tier 2 Picks (3)</div>
           <div className="grid grid-cols-3 gap-3">
-            <input placeholder="Tier 2 Pick 1" value={form.t2p1} onChange={e => setForm({ ...form, t2p1: e.target.value })} className={fieldClass} />
-            <input placeholder="Tier 2 Pick 2" value={form.t2p2} onChange={e => setForm({ ...form, t2p2: e.target.value })} className={fieldClass} />
-            <input placeholder="Tier 2 Pick 3" value={form.t2p3} onChange={e => setForm({ ...form, t2p3: e.target.value })} className={fieldClass} />
+            <AutocompleteInput placeholder="Tier 2 Pick 1" value={form.t2p1} onChange={v => setForm({ ...form, t2p1: v })} suggestions={tier2Names} className={fieldClass} />
+            <AutocompleteInput placeholder="Tier 2 Pick 2" value={form.t2p2} onChange={v => setForm({ ...form, t2p2: v })} suggestions={tier2Names} className={fieldClass} />
+            <AutocompleteInput placeholder="Tier 2 Pick 3" value={form.t2p3} onChange={v => setForm({ ...form, t2p3: v })} suggestions={tier2Names} className={fieldClass} />
           </div>
           <div className="text-xs text-masters-text font-semibold">Tier 3 Picks (4)</div>
-          <div className="grid grid-cols-4 gap-3">
-            <input placeholder="T3 Pick 1" value={form.t3p1} onChange={e => setForm({ ...form, t3p1: e.target.value })} className={fieldClass} />
-            <input placeholder="T3 Pick 2" value={form.t3p2} onChange={e => setForm({ ...form, t3p2: e.target.value })} className={fieldClass} />
-            <input placeholder="T3 Pick 3" value={form.t3p3} onChange={e => setForm({ ...form, t3p3: e.target.value })} className={fieldClass} />
-            <input placeholder="T3 Pick 4" value={form.t3p4} onChange={e => setForm({ ...form, t3p4: e.target.value })} className={fieldClass} />
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <AutocompleteInput placeholder="T3 Pick 1" value={form.t3p1} onChange={v => setForm({ ...form, t3p1: v })} suggestions={tier3Names} className={fieldClass} />
+            <AutocompleteInput placeholder="T3 Pick 2" value={form.t3p2} onChange={v => setForm({ ...form, t3p2: v })} suggestions={tier3Names} className={fieldClass} />
+            <AutocompleteInput placeholder="T3 Pick 3" value={form.t3p3} onChange={v => setForm({ ...form, t3p3: v })} suggestions={tier3Names} className={fieldClass} />
+            <AutocompleteInput placeholder="T3 Pick 4" value={form.t3p4} onChange={v => setForm({ ...form, t3p4: v })} suggestions={tier3Names} className={fieldClass} />
           </div>
           <div className="text-xs text-masters-text font-semibold">Alternates</div>
           <div className="grid grid-cols-3 gap-3">
-            <input placeholder="Tier 1 Alt" value={form.alt1} onChange={e => setForm({ ...form, alt1: e.target.value })} className={fieldClass} />
-            <input placeholder="Tier 2 Alt" value={form.alt2} onChange={e => setForm({ ...form, alt2: e.target.value })} className={fieldClass} />
-            <input placeholder="Tier 3 Alt" value={form.alt3} onChange={e => setForm({ ...form, alt3: e.target.value })} className={fieldClass} />
+            <AutocompleteInput placeholder="Tier 1 Alt" value={form.alt1} onChange={v => setForm({ ...form, alt1: v })} suggestions={tier1Names} className={fieldClass} />
+            <AutocompleteInput placeholder="Tier 2 Alt" value={form.alt2} onChange={v => setForm({ ...form, alt2: v })} suggestions={tier2Names} className={fieldClass} />
+            <AutocompleteInput placeholder="Tier 3 Alt" value={form.alt3} onChange={v => setForm({ ...form, alt3: v })} suggestions={tier3Names} className={fieldClass} />
           </div>
           <div className="flex items-center gap-2">
             <input type="checkbox" checked={form.paid} onChange={e => setForm({ ...form, paid: e.target.checked })} className="rounded" />
