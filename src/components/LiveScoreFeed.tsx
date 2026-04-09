@@ -10,10 +10,10 @@ interface LiveScoreFeedProps {
 }
 
 export default function LiveScoreFeed({ scores }: LiveScoreFeedProps) {
-  // Show top 10 golfers by position (best scores first)
+  // Show top 7 golfers by position (best scores first)
   const topGolfers = scores
     .filter(s => s.status === 'active')
-    .slice(0, 10);
+    .slice(0, 7);
 
   return (
     <div className="bg-masters-card rounded-xl border border-masters-border">
