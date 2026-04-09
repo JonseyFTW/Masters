@@ -147,14 +147,11 @@ export default function EntryDetailPage({ params }: { params: Promise<{ id: stri
                         <div className={`font-bold tabular-nums ${getScoreColor(golferScore.score)}`}>
                           {formatScore(golferScore.score)}
                         </div>
-                        {(() => {
-                          const completedRounds = golferScore.rounds.filter(r => r >= 60);
-                          return completedRounds.length > 0 ? (
-                            <div className="text-masters-text text-xs tabular-nums">
-                              {completedRounds.join(' / ')}
-                            </div>
-                          ) : null;
-                        })()}
+                        {golferScore.rounds.length > 0 && (
+                          <div className="text-masters-text text-xs tabular-nums">
+                            {golferScore.rounds.join(' / ')}
+                          </div>
+                        )}
                       </>
                     )}
                   </div>

@@ -76,12 +76,9 @@ export default function GolfersPage() {
           </div>
           <div className="text-masters-text text-xs flex items-center gap-2">
             {score?.thru && score.thru !== '-' && <span>Thru {score.thru}</span>}
-            {(() => {
-              const completedRounds = score?.rounds.filter(r => r >= 60) || [];
-              return completedRounds.length > 0 ? (
-                <span className="tabular-nums">({completedRounds.join(', ')})</span>
-              ) : null;
-            })()}
+            {score?.rounds && score.rounds.length > 0 && (
+              <span className="tabular-nums">({score.rounds.join(', ')})</span>
+            )}
           </div>
         </div>
         <div className="flex items-center gap-3">
