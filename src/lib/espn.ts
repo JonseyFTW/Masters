@@ -32,6 +32,19 @@ interface ESPNCompetition {
   };
 }
 
+interface ESPNHoleScore {
+  value: number;
+  displayValue: string;
+  period: number;
+}
+
+interface ESPNRoundLinescore {
+  value: number;
+  displayValue?: string;
+  period: number;
+  linescores?: ESPNHoleScore[];
+}
+
 interface ESPNCompetitor {
   id: string;
   athlete: {
@@ -43,7 +56,7 @@ interface ESPNCompetitor {
     };
   };
   score: string;
-  linescores?: { value: number; period: number }[];
+  linescores?: ESPNRoundLinescore[];
   status?: {
     period: number;
     type: {
@@ -96,33 +109,50 @@ function parsePosition(competitor: ESPNCompetitor): string {
   return '-';
 }
 
-function parseThru(competitor: ESPNCompetitor): string {
-  const displayValue = competitor.status?.displayValue;
-  if (displayValue) return displayValue;
-
-  const period = competitor.status?.period;
-  const statusType = competitor.status?.type?.name || '';
-  if (statusType.includes('FINAL') || statusType.includes('COMPLETE')) return 'F';
-  if (period) return `R${period}`;
-  return '-';
-}
-
 function parseCompetitor(competitor: ESPNCompetitor): GolferScore {
-  const rounds = (competitor.linescores || [])
-    .sort((a, b) => a.period - b.period)
-    .map(ls => ls.value);
+  const roundLinescores = (competitor.linescores || [])
+    .sort((a, b) => a.period - b.period);
+
+  // Determine completed rounds (18 holes) vs in-progress
+  const completedRounds: number[] = [];
+  let thru = '-';
+  let currentRound = 1;
+
+  for (const round of roundLinescores) {
+    const holesPlayed = round.linescores?.length || 0;
+    if (holesPlayed === 18) {
+      // Completed round — use the stroke total
+      completedRounds.push(round.value);
+    } else if (holesPlayed > 0) {
+      // In-progress round — this is the current round
+      thru = `${holesPlayed}`;
+      currentRound = round.period;
+    }
+  }
+
+  // If no in-progress round found, check if all rounds are complete
+  if (thru === '-' && completedRounds.length > 0) {
+    thru = 'F';
+    currentRound = completedRounds.length;
+  }
+
+  // Fall back to status-based thru if available
+  if (thru === '-') {
+    const displayValue = competitor.status?.displayValue;
+    if (displayValue && displayValue !== '-') thru = displayValue;
+  }
 
   return {
     name: competitor.athlete.displayName || competitor.athlete.fullName,
     espnId: competitor.id,
     score: parseScore(competitor.score),
     scoreDisplay: competitor.score || 'E',
-    totalStrokes: rounds.reduce((sum, r) => sum + r, 0),
-    rounds,
+    totalStrokes: completedRounds.reduce((sum, r) => sum + r, 0),
+    rounds: completedRounds,
     position: parsePosition(competitor),
     status: parseCompetitorStatus(competitor),
-    thru: parseThru(competitor),
-    currentRound: competitor.status?.period || 1,
+    thru,
+    currentRound: competitor.status?.period || currentRound,
   };
 }
 

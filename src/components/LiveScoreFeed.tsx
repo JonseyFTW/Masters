@@ -48,14 +48,11 @@ export default function LiveScoreFeed({ scores }: LiveScoreFeedProps) {
                 <div className="text-sm font-medium truncate">{golfer.name}</div>
                 <div className="text-masters-text text-xs">
                   {golfer.thru && golfer.thru !== '-' && `Thru ${golfer.thru}`}
-                  {(() => {
-                    const completedRounds = golfer.rounds.filter(r => r >= 60);
-                    return completedRounds.length > 0 ? (
-                      <span className={golfer.thru && golfer.thru !== '-' ? 'ml-2' : ''}>
-                        ({completedRounds.join(', ')})
-                      </span>
-                    ) : null;
-                  })()}
+                  {golfer.rounds.length > 0 && (
+                    <span className={golfer.thru && golfer.thru !== '-' ? 'ml-2' : ''}>
+                      ({golfer.rounds.join(', ')})
+                    </span>
+                  )}
                 </div>
               </div>
               <div className="flex items-center gap-1">
