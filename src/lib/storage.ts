@@ -81,17 +81,20 @@ export async function setGolfers(golfers: Golfer[]): Promise<void> {
   await kvSet(KEYS.golfers, golfers);
 }
 
-// Seed data for development
-export async function seedDevData(): Promise<void> {
-  const redis = getRedis();
-  if (redis) return; // Don't seed if using real Redis
+// Seed golfer tiers on first use (works for both Redis and in-memory)
+export async function seedData(): Promise<void> {
+  const golfers = await getGolfers();
+  if (golfers.length > 0) return; // Already seeded
 
-  const entries = await getEntries();
-  if (entries.length > 0) return; // Already seeded
-
-  const { defaultGolfers, sampleEntries } = await import('../data/seed');
+  const { defaultGolfers } = await import('../data/seed');
   await setGolfers(defaultGolfers);
-  await setEntries(sampleEntries);
+
+  // Only seed sample entries for in-memory (dev) mode
+  const redis = getRedis();
+  if (!redis) {
+    const { sampleEntries } = await import('../data/seed');
+    await setEntries(sampleEntries);
+  }
 }
 
 // Initialize on first load
@@ -99,7 +102,7 @@ let initialized = false;
 export async function initStorage(): Promise<void> {
   if (initialized) return;
   initialized = true;
-  await seedDevData();
+  await seedData();
 }
 
 // Reset the in-memory store (for development)
