@@ -60,7 +60,7 @@ interface ESPNCompetitor {
 let cachedScores: { data: GolferScore[]; tournament: TournamentState; timestamp: number } | null = null;
 const CACHE_TTL = 60_000; // 60 seconds
 
-function normalizeName(name: string): string {
+export function normalizeName(name: string): string {
   return name
     .toLowerCase()
     .normalize('NFD')

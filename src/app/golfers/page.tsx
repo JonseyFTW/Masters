@@ -4,7 +4,7 @@ import { useScores, useEntries } from '@/lib/hooks';
 import { useEffect, useState } from 'react';
 import { Golfer, GolferScore } from '@/lib/types';
 import { formatScore, getScoreColor } from '@/lib/scoring';
-import { findGolferScore } from '@/lib/espn';
+import { findGolferScore, normalizeName } from '@/lib/espn';
 import TierBadge from '@/components/TierBadge';
 import { Users } from 'lucide-react';
 
@@ -21,11 +21,17 @@ export default function GolfersPage() {
       .catch(() => {});
   }, []);
 
-  // Count how many entries picked each golfer
+  // Count how many entries picked each golfer (uses normalized names to handle typos/accents)
   function pickCount(golferName: string): number {
+    const normalizedGolfer = normalizeName(golferName);
     return entries.filter(e => {
       const allPicks = [...e.picks.tier1, ...e.picks.tier2, ...e.picks.tier3];
-      return allPicks.some(p => p.toLowerCase() === golferName.toLowerCase());
+      return allPicks.some(p => {
+        const normalizedPick = normalizeName(p);
+        return normalizedPick === normalizedGolfer ||
+          normalizedPick.includes(normalizedGolfer) ||
+          normalizedGolfer.includes(normalizedPick);
+      });
     }).length;
   }
 
